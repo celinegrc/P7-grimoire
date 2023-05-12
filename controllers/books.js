@@ -10,7 +10,7 @@ exports.postBook = async (req, res) => {
  
     await sharp(req.file.path)
       .resize(404, 568)
-      .toFormat('webp')
+      .webp({ quality: 70 })
       .toFile(`images/${req.file.filename.split('.')[0]}.webp`);
 
     fs.unlink(req.file.path, (err) => {
@@ -51,9 +51,11 @@ exports.getOneBook = async (req,res)=>{
   }
 }
 
+
 exports.modifyBook = async (req, res, next) => {
   try {
-    const bookObject = req.file ? {
+   
+    const bookObject = req.file ? { 
       ...JSON.parse(req.body.book),
       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : { ...req.body };
@@ -63,6 +65,37 @@ exports.modifyBook = async (req, res, next) => {
     if (book.userId != req.auth.userId) {
       res.status(401).json({ message : 'Not authorized'});
     } else {
+      if (req.file) {
+        const imagePath = `images/${req.file.filename}`;  
+        try {
+
+          await sharp(imagePath)
+          .resize(404, 568)  
+          .webp({ quality: 70 })  
+  
+          .toFile(`images/${req.file.filename.split('.')[0]}.webp`);
+          
+        
+
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error(err);
+            }})
+            
+         bookObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0].split('.')[0]}.webp`;  //
+
+
+          const filename = book.imageUrl.split('/images/')[1];
+          fs.unlink(`images/${filename}`, (err) => {
+            if (err) throw err;
+          });
+        } catch (error) {
+          console.log(error);
+          res.status(500).json({ error });
+          return;
+        }
+        
+      }
       await Book.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id});
       res.status(200).json({message : 'Objet modifié!'});
     }
@@ -127,3 +160,6 @@ exports.rateBook = async (req,res,next)=>{
   res.status(401).json({ error });
   }
 }*/
+
+
+
