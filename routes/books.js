@@ -6,7 +6,7 @@ const auth = require('../middleware/auth')
 const bookCtrl = require('../controllers/books');
 
 router.get('/', bookCtrl.getAllBooks);
-//router.get('/bestrating', bookCtrl.getBestBooks )
+router.get('/bestrating', bookCtrl.getBestBooks )
 router.get('/:id', bookCtrl.getOneBook);
 router.post('/:id/rating', auth, bookCtrl.rateBook)
 router.post('/', auth,  multer, bookCtrl.postBook);

@@ -3,20 +3,27 @@ const sharp = require('sharp');
 const fs = require('fs');
 
 exports.postBook = async (req, res) => {
+  
   try {
     const bookObject = JSON.parse(req.body.book);
-    delete bookObject._id;
-    const imagePath = `${req.protocol}://${req.get('host')}/images/`;
+    const today = new Date()
+    const year = today.getFullYear()
+    if (bookObject.year > year){
+      console.log("Année de publication postérieure de la date actuelle.")
+      res.status(400).json("Année de publication postérieure de la date actuelle.")
+    } else {
+      delete bookObject._id;
+      const imagePath = `${req.protocol}://${req.get('host')}/images/`;
  
-    await sharp(req.file.path)
+     await sharp(req.file.path)
       .resize(404, 568)
-      .webp({ quality: 70 })
+      .webp({ quality: 80 })
       .toFile(`images/${req.file.filename.split('.')[0]}.webp`);
 
-    fs.unlink(req.file.path, (err) => {
-      if (err) {
-        console.error(err);
-      }
+      fs.unlink(req.file.path, (err) => {
+        if (err) {
+          console.error(err);
+        }
     });
 
     const book = new Book({
@@ -26,7 +33,7 @@ exports.postBook = async (req, res) => {
 
     await book.save();
 
-    res.status(201).json({ message: 'Livre enregistré !' });
+    res.status(201).json({ message: 'Livre enregistré !' })}
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -54,10 +61,10 @@ exports.getOneBook = async (req,res)=>{
 
 exports.modifyBook = async (req, res, next) => {
   try {
-   
+   console.log(req.body)
     const bookObject = req.file ? { 
       ...JSON.parse(req.body.book),
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename }`
     } : { ...req.body };
     delete bookObject._userId;
 
@@ -72,11 +79,9 @@ exports.modifyBook = async (req, res, next) => {
           await sharp(imagePath)
           .resize(404, 568)  
           .webp({ quality: 70 })  
-  
           .toFile(`images/${req.file.filename.split('.')[0]}.webp`);
           
         
-
           fs.unlink(req.file.path, (err) => {
             if (err) {
               console.error(err);
@@ -142,7 +147,7 @@ exports.rateBook = async (req,res,next)=>{
      arrayRating.push(newRatingObject) 
       const allRatings = arrayRating.map(rating => rating.grade);
       const averageRating = allRatings.reduce((a, b) => a + b, 0) / allRatings.length;
-      book.averageRating = averageRating;
+      book.averageRating = averageRating.toFixed(1);
       await book.save();
     }
     res.status(200).json(book)
@@ -151,15 +156,17 @@ exports.rateBook = async (req,res,next)=>{
   }
 }
 
-/*exports.getBestBooks = async (req,res,next)=>{
+exports.getBestBooks = async (req,res,next)=>{
+  console.log('meilleurs livres')
   try{
-    console.log('meilleurs livres')
     const books = await Book.find()
-    res.status(200).json(bestBooks)
+    .sort({ averageRating: -1 })
+    .limit(3)
+ 
+    res.status(200).json(books)
   } catch (error) {
   res.status(401).json({ error });
   }
-}*/
-
+}
 
 
