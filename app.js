@@ -25,9 +25,6 @@ app.use(express.json())
      
 app.use('/api/auth', userRoutes)
 app.use('/api/books', bookRoutes)
-//app.use('api/books/:id', bookRoutes)
-//app.use('/api/books/bestrating', bookRoutes)
-//app.use('/api/books/:id/rating', bookRoutes)
 app.use('/images', express.static(path.join(__dirname, 'images')))
 
 module.exports = app;
