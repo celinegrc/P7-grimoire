@@ -49,25 +49,25 @@ exports.getOneBook = async (req,res)=>{
   }
 }
 
-
 exports.modifyBook = async (req, res) => {
   try {
     const bookObject = req.file ? { 
       ...JSON.parse(req.body.book),
-    } : req.body
-    console.log(bookObject)
+      imageUrl : `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}resized.webp`
+    } : {...req.body} 
+    const today = new Date();
+    const year = today.getFullYear();
+    if (bookObject.year > year) {
+      console.log("Année de publication postérieure de la date actuelle");
+      res.status(400).json("Année de publication postérieure de la date actuelle.");
+    } else {
     delete bookObject._userId;
     const book = await Book.findOne({_id: req.params.id})
     if (book.userId != req.auth.userId) {
       res.status(401).json({ message : 'Not authorized'})
     } else {
       if (req.file) {
-      //  console.log(req.file.path)
-
        try {
-
-        bookObject.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}resized.webp`
-      
         const filename = book.imageUrl.split('/images/')[1];
           fs.unlink(`images/${filename}`, (err) => {
             if (err) throw err
@@ -75,13 +75,12 @@ exports.modifyBook = async (req, res) => {
         } catch (error) {
           console.log(error);
           res.status(500).json({ error })
-          return;
         }
-        
+       
       }
       await Book.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id})
       res.status(200).json({message : 'Objet modifié!'})
-    }
+    } }
   } catch(error) {
     res.status(400).json({ error })
   }
