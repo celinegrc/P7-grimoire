@@ -16,7 +16,6 @@ const resizedImage = async (req, res, next) => {
       .toFile(outputFilePath)
 
     fs.unlink(imagePath, (err) => {
-      console.log(req.file.path)
         req.file.path = outputFilePath
         console.log(req.file.path)
       if (err) {

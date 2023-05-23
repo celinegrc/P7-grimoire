@@ -5,14 +5,14 @@ const bookRoutes = require('./routes/books')
 const path = require('path')
 const dotenv = require('dotenv').config()
 
-mongoose.connect(process.env.MONGO_URI,
+
+mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster1.o21r8wy.mongodb.net/?retryWrites=true&w=majority`,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'))
 
 const app = express();
-
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
