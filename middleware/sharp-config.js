@@ -7,11 +7,11 @@ const resizedImage = async (req, res, next) => {
   }
 
   const imagePath = req.file.path;
-  const outputFilePath = `${imagePath.split('.')[0]}resized.webp`;
+  const outputFilePath = `${imagePath.split('.')[0]}resized.webp`
 
   try {
     await sharp(imagePath)
-      .resize(404, 568, { fit: 'cover' })
+      .resize(463, 595,{ fit: 'cover' })
       .webp({ quality: 80 })
       .toFile(outputFilePath)
 
@@ -21,12 +21,12 @@ const resizedImage = async (req, res, next) => {
       if (err) {
         console.error(err)
       }
-      next();
+      next()
     })
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erreur lors du traitement de l\'image' });
+    res.status(500).json({ error: 'Erreur lors du traitement de l\'image' })
   }
 };
 
