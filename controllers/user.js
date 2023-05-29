@@ -4,50 +4,68 @@ const jwt = require('jsonwebtoken')
 
 exports.signup = async (req, res) => {
   try {
-     // Vérifier que l'email est au format valide
-     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-     if (!emailRegex.test(req.body.email)) {
-      res.status(400).json("Adresse non valide" )
-       } else {
-        const hash = await bcrypt.hash(req.body.password, 10);
-        const user = new User({
-          email: req.body.email,
-          password: hash
-        })
+    // Vérification du format de l'adresse e-mail
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(req.body.email)) {
+      // Erreur si l'adresse e-mail n'est pas valide
+      res.status(400).json("Adresse non valide")
+    } else {
+      // Hachage du mot de passe
 
-    await user.save()
+      // Génération du hachage en utilisant bcrypt avec un coût de 10
+      const hash = await bcrypt.hash(req.body.password, 10)
 
-    res.status(201).json({ message: 'Utilisateur créé !' })}
+      // Création d'un nouvel utilisateur avec l'adresse e-mail et le mot de passe haché
+      const user = new User({
+        email: req.body.email,
+        password: hash
+      })
+
+      await user.save()
+
+      res.status(201).json({ message: 'Utilisateur créé !' })
+    }
   } catch (error) {
     res.status(500).json({ error })
   }
-};
+}
 
 exports.login = async (req, res) => {
-    try {
-        const user = await User.findOne({ email: req.body.email })
+  try {
+    // Recherche de l'utilisateur 
+    const user = await User.findOne({ email: req.body.email })
 
-        if (!user) {
-          return res.status(401).json({ error: 'Paire login/mot de passe incorrecte' })
-        }
-
-        const validPassword = await bcrypt.compare(req.body.password, user.password);
-
-        if (!validPassword) {
-          return res.status(401).json({ error: 'Paire login/mot de passe incorrecte' })
-        } else {
-            const userId = user._id
-            const token = jwt.sign(
-              { userId }, 
-              'SECRET_KEY',
-              { expiresIn: '24h' }
-              );
-            res.status(200).json({
-                userId: user._id,
-                token: token,
-            })
-        }   
-    } catch (error) {
-        res.status(500).json({ error })
+    if (!user) {
+      return res.status(401).json({ error: 'Paire login/mot de passe incorrecte' })
     }
- }
+
+    // Vérification du mot de passe 
+    const validPassword = await bcrypt.compare(req.body.password, user.password)
+
+    if (!validPassword) {
+      // Erreur si mot de passe incorrect
+      return res.status(401).json({ error: 'Paire login/mot de passe incorrecte' })
+    } else {
+      //Génération du jeton d'authentification
+
+      // Création du payload du jeton contenant l'identifiant de l'utilisateur
+      const userId = user._id
+
+      // Génération du token
+      const token = jwt.sign(
+        { userId },
+        'SECRET_KEY',
+        { expiresIn: '24h' }
+      )
+
+      // Réponse avec l'identifiant de l'utilisateur et le token
+      res.status(200).json({
+        userId: user._id,
+        token: token,
+      })
+    }
+  } catch (error) {
+    res.status(500).json({ error })
+  }
+}
+
