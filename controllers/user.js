@@ -2,11 +2,11 @@ const bcrypt = require('bcrypt')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
+
 exports.signup = async (req, res) => {
   try {
     // Vérification du format de l'adresse e-mail
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    console.log(req.body.password)
     if (!emailRegex.test(req.body.email))  {
       // Erreur si l'adresse e-mail n'est pas valide
       res.status(400).json("Adresse non valide")
@@ -52,8 +52,8 @@ exports.login = async (req, res) => {
       // Génération du token
       const token = jwt.sign(
         { userId },
-        'SECRET_KEY',
-        { expiresIn: '24h' }
+        process.env.CLE_SECRETE,
+        { expiresIn: '4h' }
       )
 
       // Réponse avec l'identifiant de l'utilisateur et le token
