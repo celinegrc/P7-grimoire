@@ -6,7 +6,7 @@ const MIME_TYPES = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp'
-};
+}
 
 // Configuration du stockage des fichiers avec multer
 const storage = multer.diskStorage({
@@ -23,7 +23,17 @@ const storage = multer.diskStorage({
   }
 })
 
+// Fonction de validation du type de fichier
+const fileFilter = (req, file, callback) => {
+  // Vérifier si le type MIME est autorisé
+  if (MIME_TYPES[file.mimetype]) {
+    callback(null, true)
+  } else {
+    // Rejeter le fichier avec une erreur
+    callback(new Error('Type de fichier non autorisé'))
+  }
+}
 
-module.exports = multer({ storage: storage }).single('image')
+module.exports = multer({ storage: storage, fileFilter: fileFilter }).single('image')
 
 

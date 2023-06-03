@@ -24,8 +24,8 @@ exports.postBook = async (req, res) => {
       })
     
       // Enregistre le livre dans la base de données
-      await book.save();
-    
+      await book.save()
+  
       res.status(201).json({ message: 'Livre enregistré !' })
     }
   } catch (error) {
@@ -57,7 +57,7 @@ exports.modifyBook = async (req, res) => {
     const bookObject = req.file ? { 
       ...JSON.parse(req.body.book),
       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}resized.webp`
-    } : {...req.body};
+    } : {...req.body}
     
     const today = new Date()
     const year = today.getFullYear()
@@ -113,7 +113,7 @@ exports.deleteBook = async (req, res) => {
         await Book.deleteOne({ _id: req.params.id })
 
         res.status(200).json({ message: 'Objet supprimé !' })
-      });
+      })
     }
   } catch (error) {
     res.status(500).json({ error })
@@ -158,7 +158,7 @@ exports.rateBook = async (req, res) => {
     const newRatingObject = {
       userId: req.auth.userId,
       grade: req.body.rating,
-    };
+    }
 
     // Vérification si l'utilisateur a déjà voté pour ce livre
     const hasUserVoted = book.ratings.find((rating) => rating.userId === req.auth.userId)
@@ -178,7 +178,7 @@ exports.rateBook = async (req, res) => {
         { _id: req.params.id },
         { ratings: book.ratings, averageRating: newAverageRating,_id: req.params.id },
         { new: true }
-      );
+      )
 
       // Recherche du livre mis à jour pour obtenir les dernières valeurs
       const updatedBook = await Book.findOne({ _id: req.params.id })
@@ -205,7 +205,7 @@ exports.getBestBooks = async (req, res) => {
       .sort({ averageRating: -1 }) // Tri des livres par ordre décroissant de la note moyenne
       .limit(3) // Limite le nombre de livres renvoyés à 3
 
-    res.status(200).json(books);
+    res.status(200).json(books)
   } catch (error) {
     res.status(500).json({ error })
   }

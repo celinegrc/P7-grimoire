@@ -6,13 +6,16 @@ exports.signup = async (req, res) => {
   try {
     // Vérification du format de l'adresse e-mail
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(req.body.email)) {
+    console.log(req.body.password)
+    if (!emailRegex.test(req.body.email))  {
       // Erreur si l'adresse e-mail n'est pas valide
       res.status(400).json("Adresse non valide")
+    }else if (!req.body.password) {
+        // Erreur si aucun mot de passe n'est fourni
+        res.status(400).json("Mot de passe manquant")
     } else {
-      // Hachage du mot de passe
 
-      // Génération du hachage en utilisant bcrypt avec un coût de 10
+      // Génération du hachage en utilisant bcrypt 
       const hash = await bcrypt.hash(req.body.password, 10)
 
       // Création d'un nouvel utilisateur avec l'adresse e-mail et le mot de passe haché
@@ -20,9 +23,7 @@ exports.signup = async (req, res) => {
         email: req.body.email,
         password: hash
       })
-
       await user.save()
-
       res.status(201).json({ message: 'Utilisateur créé !' })
     }
   } catch (error) {
@@ -46,9 +47,6 @@ exports.login = async (req, res) => {
       // Erreur si mot de passe incorrect
       return res.status(401).json({ error: 'Paire login/mot de passe incorrecte' })
     } else {
-      //Génération du jeton d'authentification
-
-      // Création du payload du jeton contenant l'identifiant de l'utilisateur
       const userId = user._id
 
       // Génération du token
