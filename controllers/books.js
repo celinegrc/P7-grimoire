@@ -123,6 +123,13 @@ exports.rateBook = async (req, res) => {
   try {
       const book = await Book.findOne({ _id: req.params.id })
 
+        // Vérification si l'utilisateur est autorisé
+      const user = req.body.userId
+      if (user !== req.auth.userId) {
+        res.status(403).json({ error: 'Vous ne pouvez pas voter pour ce livre.' })
+        return
+      }
+
       // Création de l'objet de nouvelle note
       const newRatingObject = {
         userId: req.auth.userId,
@@ -131,29 +138,29 @@ exports.rateBook = async (req, res) => {
 
       // Vérification si l'utilisateur a déjà voté pour ce livre
       const hasUserVoted = book.ratings.find((rating) => rating.userId === req.auth.userId)
-
       if (!hasUserVoted) {
-        //Ajout de la nouvelle note dans le tableau ratings
-        book.ratings.push(newRatingObject)
+        
+          //Ajout de la nouvelle note dans le tableau ratings
+          book.ratings.push(newRatingObject)
 
-      // Récupération des valeurs des notes du tableau ratings
-      const allRatings = book.ratings.map((rating)=> rating.grade)
-      //Calcul de la nouvelle moyenne
-      const averageRating = allRatings.reduce((acc, curr) => acc + curr, 0) / allRatings.length 
-      const newAverageRating = averageRating.toFixed(1)
+          // Récupération des valeurs des notes du tableau ratings
+          const allRatings = book.ratings.map((rating)=> rating.grade)
+          //Calcul de la nouvelle moyenne
+          const averageRating = allRatings.reduce((acc, curr) => acc + curr, 0) / allRatings.length 
+          const newAverageRating = averageRating.toFixed(1)
 
-        // Mise à jour du livre avec les nouveaux champs de note et de note moyenne
-        await Book.updateOne(
-          { _id: req.params.id },
-          { ratings: book.ratings, averageRating: newAverageRating,_id: req.params.id },
-          { new: true }
-        )
+          // Mise à jour du livre avec les nouveaux champs de note et de note moyenne
+          await Book.updateOne(
+            { _id: req.params.id },
+            { ratings: book.ratings, averageRating: newAverageRating,_id: req.params.id },
+            { new: true }
+          )
 
-        // Recherche du livre mis à jour pour obtenir les dernières valeurs
-        const updatedBook = await Book.findOne({ _id: req.params.id })
+          // Recherche du livre mis à jour pour obtenir les dernières valeurs
+          const updatedBook = await Book.findOne({ _id: req.params.id })
 
-        // Réponse avec le livre mis à jour
-        res.status(200).json(updatedBook)
+          // Réponse avec le livre mis à jour
+          res.status(200).json(updatedBook)
       } else {
         res.status(403).json({ error: 'Vous ne pouvez pas voter pour ce livre.' })
       }
