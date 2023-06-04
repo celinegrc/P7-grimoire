@@ -10,7 +10,7 @@ exports.signup = async (req, res) => {
     if (!emailRegex.test(req.body.email))  {
       // Erreur si l'adresse e-mail n'est pas valide
       res.status(400).json("Adresse non valide")
-    }else if (!req.body.password) {
+    } else if (!req.body.password) {
         // Erreur si aucun mot de passe n'est fourni
         res.status(400).json("Mot de passe manquant")
     } else {

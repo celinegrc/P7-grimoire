@@ -4,13 +4,14 @@ const fs = require('fs')
 exports.postBook = async (req, res) => {
   try {
     const bookObject = JSON.parse(req.body.book)
+
     const today = new Date()
     const year = today.getFullYear()
-    
     // Vérifie si l'année de publication du livre est supérieure à l'année actuelle
     if (bookObject.year > year) {
       console.log("Année de publication postérieure à la date actuelle")
       res.status(400).json("Année de publication postérieure à la date actuelle.")
+
     } else {
       delete bookObject._id
       delete bookObject._userId
@@ -56,7 +57,8 @@ exports.modifyBook = async (req, res) => {
     const bookObject = req.file ? { 
       ...JSON.parse(req.body.book),
       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}resized.webp`
-    } : req.body
+    } : {...req.body}
+
     const today = new Date()
     const year = today.getFullYear()
     
