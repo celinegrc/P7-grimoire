@@ -16,12 +16,13 @@ exports.postBook = async (req, res) => {
       delete bookObject._id
       delete bookObject._userId
     
+      const S3_BUCKET_URL = 'https://my-bucket-images-grimoire.s3.eu-west-3.amazonaws.com/';
       // Crée une nouvelle instance de modèle Book avec les données du livre
       const book = new Book({
-      ...bookObject, 
-      userId: req.auth.userId, 
-      imageUrl: `https://grimoire-api.vercel.app/images/${req.file.filename.split('.')[0]}resized.webp` 
-      })
+        ...bookObject, 
+        userId: req.auth.userId, 
+        imageUrl: S3_BUCKET_URL + req.file.key
+      });
     
       // Enregistre le livre dans la base de données
       await book.save()
