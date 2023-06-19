@@ -48,9 +48,7 @@ exports.postBook = async (req, res) => {
 
       // Associer l'image au livre en utilisant l'ID du livre
       if (req.file) {
-        savedBook.imageUrl = req.file.filename;
-        savedBook.imageName = req.file.originalname;
-        savedBook.imageType = req.file.mimetype;
+        savedBook.filename = req.file.filename;
         await savedBook.save();
       }
 
