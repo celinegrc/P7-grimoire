@@ -8,7 +8,6 @@ const resizedImage = async (req, res, next) => {
   }
 
   const imagePath = req.file.path
-  console.log(imagePath)
   const outputFilePath = `${imagePath.split('.')[0]}resized.webp`
 
   try {
@@ -18,7 +17,7 @@ const resizedImage = async (req, res, next) => {
       .webp({ quality: 80 })
       .toFile(outputFilePath)
 
-     // Supprimer l'image d'origine
+     // Supprimer l'image d'origine et mise à jour du chemin 
     fs.unlink(imagePath, (err) => {
       req.file.path = outputFilePath
       if (err) {

@@ -58,7 +58,6 @@ exports.modifyBook = async (req, res) => {
       ...JSON.parse(req.body.book),
       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}resized.webp`
     } : {...req.body}
-
     const today = new Date()
     const year = today.getFullYear()
     
