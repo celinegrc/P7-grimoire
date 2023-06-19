@@ -23,36 +23,44 @@ exports.getOneBook = async (req,res)=>{
 
 exports.postBook = async (req, res) => {
   try {
-    const bookObject = JSON.parse(req.body.book)
+    const bookObject = JSON.parse(req.body.book);
 
-    const today = new Date()
-    const year = today.getFullYear()
-    // Vérifie si l'année de publication du livre est supérieure à l'année actuelle
+    const today = new Date();
+    const year = today.getFullYear();
+
     if (bookObject.year > year) {
-      console.log("Année de publication postérieure à la date actuelle")
-      res.status(400).json("Année de publication postérieure à la date actuelle.")
-
+      console.log("Année de publication postérieure à la date actuelle");
+      res.status(400).json("Année de publication postérieure à la date actuelle.");
     } else {
-      delete bookObject._id
-      delete bookObject._userId
-    
-      const S3_BUCKET_URL = 'https://my-bucket-images-grimoire.s3.eu-west-3.amazonaws.com/';
-      // Crée une nouvelle instance de modèle Book avec les données du livre
+      delete bookObject._id;
+      delete bookObject._userId;
+
       const book = new Book({
-        ...bookObject, 
-        userId: req.auth.userId, 
-        imageUrl: S3_BUCKET_URL + req.file.key
+        ...bookObject,
+        userId: req.auth.userId
       });
-    
-      // Enregistre le livre dans la base de données
-      await book.save()
-  
-      res.status(201).json({ message: 'Livre enregistré !' })
+
+      // Enregistrer le livre dans la base de données
+      const savedBook = await book.save();
+
+      // Récupérer l'ID du livre enregistré
+      const bookId = savedBook._id;
+
+      // Associer l'image au livre en utilisant l'ID du livre
+      if (req.file) {
+        savedBook.imageUrl = req.file.filename;
+        savedBook.imageName = req.file.originalname;
+        savedBook.imageType = req.file.mimetype;
+        await savedBook.save();
+      }
+
+      res.status(201).json({ message: 'Livre enregistré !' });
     }
   } catch (error) {
-    res.status(400).json({ error })
-    }
+    res.status(400).json({ error });
   }
+};
+
 
 exports.modifyBook = async (req, res) => {
   try {
