@@ -8,7 +8,7 @@ const app = express();
 // Configuration des informations d'identification AWS
 AWS.config.update({
   accessKeyId: process.env.ACCES_KEY_ID,
-  secretAccessKey: SECRET_ACCES_KEY,
+  secretAccessKey: process.env.SECRET_ACCES_KEY,
   region:'eu-west-3'
 });
 
