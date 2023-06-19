@@ -1,6 +1,26 @@
 const Book = require ('../models/book')
 const fs = require('fs')
 
+
+exports.getAllBooks = async (req, res) => {
+  try {
+    const books = await Book.find()
+    res.status(200).json(books)
+  } catch (error) {
+    res.status(500).json({ error })
+  }
+}
+
+exports.getOneBook = async (req,res)=>{
+  try {
+    const book = await  Book.findOne({ _id: req.params.id })
+    res.status(200).json(book)
+  } catch (error) { 
+    res.status(404).json({ error })
+  }
+}
+
+
 exports.postBook = async (req, res) => {
   try {
     const bookObject = JSON.parse(req.body.book)
@@ -33,24 +53,6 @@ exports.postBook = async (req, res) => {
     res.status(400).json({ error })
     }
   }
-
-exports.getAllBooks = async (req, res) => {
-  try {
-    const books = await Book.find()
-    res.status(200).json(books)
-  } catch (error) {
-    res.status(500).json({ error })
-  }
-}
-
-exports.getOneBook = async (req,res)=>{
-  try {
-    const book = await  Book.findOne({ _id: req.params.id })
-    res.status(200).json(book)
-  } catch (error) { 
-    res.status(404).json({ error })
-  }
-}
 
 exports.modifyBook = async (req, res) => {
   try {
