@@ -1,4 +1,4 @@
-/*const sharp = require('sharp')
+const sharp = require('sharp')
 const fs = require('fs')
 sharp.cache(false)
 
@@ -33,4 +33,3 @@ const resizedImage = async (req, res, next) => {
 }
 
 module.exports = resizedImage
-*/

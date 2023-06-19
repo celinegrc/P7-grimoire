@@ -1,6 +1,37 @@
 const Book = require ('../models/book')
 const fs = require('fs')
 
+exports.postBook = async (req, res) => {
+  try {
+    const bookObject = JSON.parse(req.body.book)
+
+    const today = new Date()
+    const year = today.getFullYear()
+    // Vérifie si l'année de publication du livre est supérieure à l'année actuelle
+    if (bookObject.year > year) {
+      console.log("Année de publication postérieure à la date actuelle")
+      res.status(400).json("Année de publication postérieure à la date actuelle.")
+
+    } else {
+      delete bookObject._id
+      delete bookObject._userId
+    
+      // Crée une nouvelle instance de modèle Book avec les données du livre
+      const book = new Book({
+      ...bookObject, 
+      userId: req.auth.userId, 
+      imageUrl: `https://grimoire-api.vercel.app/images/${req.file.filename.split('.')[0]}resized.webp` 
+      })
+    
+      // Enregistre le livre dans la base de données
+      await book.save()
+  
+      res.status(201).json({ message: 'Livre enregistré !' })
+    }
+  } catch (error) {
+    res.status(400).json({ error })
+    }
+  }
 
 exports.getAllBooks = async (req, res) => {
   try {
@@ -19,46 +50,6 @@ exports.getOneBook = async (req,res)=>{
     res.status(404).json({ error })
   }
 }
-
-
-exports.postBook = async (req, res) => {
-  try {
-    const bookObject = JSON.parse(req.body.book);
-
-    const today = new Date();
-    const year = today.getFullYear();
-
-    if (bookObject.year > year) {
-      console.log("Année de publication postérieure à la date actuelle");
-      res.status(400).json("Année de publication postérieure à la date actuelle.");
-    } else {
-      delete bookObject._id;
-      delete bookObject._userId;
-
-      const book = new Book({
-        ...bookObject,
-        userId: req.auth.userId
-      });
-
-      // Enregistrer le livre dans la base de données
-      const savedBook = await book.save();
-
-      // Récupérer l'ID du livre enregistré
-      const bookId = savedBook._id;
-
-      // Associer l'image au livre en utilisant l'ID du livre
-      if (req.file) {
-        savedBook.filename = req.file.filename;
-        await savedBook.save();
-      }
-
-      res.status(201).json({ message: 'Livre enregistré !' });
-    }
-  } catch (error) {
-    res.status(400).json({ error });
-  }
-};
-
 
 exports.modifyBook = async (req, res) => {
   try {
@@ -189,5 +180,6 @@ exports.getBestBooks = async (req, res) => {
     res.status(500).json({ error })
   }
 }
+
 
 
