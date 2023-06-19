@@ -6,8 +6,8 @@ const bookSchema = new Schema({
   title: { type: String, required: true },
   author: { type: String, required: true },
   image: {
-    filename: { type: String, required: true },
-    contentType: { type: String, required: true }
+    filename: { type: String},
+    contentType: { type: String}
   },
   year: { type: Number, required: true },
   genre: { type: String, required: true },
