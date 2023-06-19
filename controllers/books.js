@@ -20,7 +20,7 @@ exports.postBook = async (req, res) => {
       const book = new Book({
       ...bookObject, 
       userId: req.auth.userId, 
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}resized.webp` 
+      imageUrl: `https://grimoire-api.vercel.app/images/${req.file.filename.split('.')[0]}resized.webp` 
       })
     
       // Enregistre le livre dans la base de données
